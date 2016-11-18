@@ -43,6 +43,11 @@
 /**
  * @brief Macro for setting @ref nrf_drv_saadc_config_t to default settings.
  */
+
+#define SAADC_CONFIG_RESOLUTION      NRF_SAADC_RESOLUTION_10BIT
+#define SAADC_CONFIG_OVERSAMPLE      NRF_SAADC_OVERSAMPLE_DISABLED
+#define SAADC_CONFIG_IRQ_PRIORITY    APP_IRQ_PRIORITY_LOW
+
 #define NRF_DRV_SAADC_DEFAULT_CONFIG                \
 {                                                   \
     .resolution         = SAADC_CONFIG_RESOLUTION,  \
