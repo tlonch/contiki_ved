@@ -16,6 +16,8 @@ else
 CFLAGS += -DDEVICE_NAME=\"nRF52-DK-CoAP-Server\"
 endif
 
+NRF52_SDK_ROOT=$(CONTIKI)/cpu/nrf52832/nrf-sdk/
+
 # automatically build RESTful resources
 REST_RESOURCES_DIR = ./resources
 REST_RESOURCES_FILES = $(notdir $(shell find $(REST_RESOURCES_DIR) -name '*.c' ! -name 'res-plugtest*'))
