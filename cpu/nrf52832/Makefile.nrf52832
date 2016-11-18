@@ -39,7 +39,7 @@ OUTPUT_FILENAME := $(CONTIKI_PROJECT)
 MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
 
-TEMPLATE_PATH = $(NRF52_SDK_ROOT)/components/toolchain/gcc
+TEMPLATE_PATH = $(NRF52_SDK_ROOT)/components/toolchain/gcc 
 
 OBJECT_DIRECTORY = $(OBJECTDIR)
 LISTING_DIRECTORY := $(OBJECTDIR)
@@ -90,6 +90,8 @@ C_SOURCE_FILES += $(NRF52_SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common
                   $(NRF52_SDK_ROOT)/components/drivers_nrf/rng/nrf_drv_rng.c \
                   $(NRF52_SDK_ROOT)/components/drivers_nrf/delay/nrf_delay.c \
                   $(NRF52_SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
+                  $(NRF52_SDK_ROOT)/components/drivers_nrf/hal/nrf_saadc.c \
+                  $(NRF52_SDK_ROOT)/components/drivers_nrf/saadc/nrf_drv_saadc.c \
                   $(NRF52_SDK_ROOT)/components/libraries/util/app_error.c \
                   $(NRF52_SDK_ROOT)/components/toolchain/system_nrf52.c
                   
@@ -105,6 +107,7 @@ endif
 ASM_SOURCE_FILES  = $(NRF52_SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.s
 
 #includes common to all targets
+INC_PATHS += components/drivers_nrf/saadc
 INC_PATHS += components/drivers_nrf/gpiote
 INC_PATHS += components/drivers_nrf/hal
 INC_PATHS += components/drivers_nrf/config
@@ -122,6 +125,13 @@ INC_PATHS += components/device
 INC_PATHS += components/toolchain/gcc
 INC_PATHS += components/toolchain
 INC_PATHS += examples/bsp
+
+#INC_PATHS += components/toolchain/cmsis/include
+#INC_PATHS += components/drivers_nrf/nrf_soc_nosd
+#INC_PATHS += components/softdevice/s132/headers
+#INC_PATHS += examples/iot/coap/ipv6/server/config
+
+
 
 ifneq ($(NRF52_WITHOUT_SOFTDEVICE),1)
 INC_PATHS += components/softdevice/s1xx_iot/headers
@@ -163,7 +173,7 @@ CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs --std=gnu99
-CFLAGS += -Wall -Werror
+CFLAGS += -Wall 
 CFLAGS += -ggdb
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section. This will allow linker to dump unused functions
