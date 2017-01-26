@@ -10,6 +10,8 @@
 
 #include "nrf_saadc.h"
 #include "nrf_drv_saadc.h"
+#include "cfs/cfs-coffee.h" 
+#include "cfs/cfs.h" 
 
 #define APP_ERROR_CHECK(X) if(X!=0) printf("error: %d \n", X);
 #define SAMPLES_IN_BUFFER 1
@@ -109,7 +111,33 @@ int saadc_get_value(short int chan)
     return m_buffer_pool[0][0];
 }
 
+/*void writeToFile(double value, char* filename)
+{
+  char s[10];
+  sprintf(s, "%lf", value);
+  int fd_write;
+  int n;
+  fd_write = cfs_open(filename, CFS_WRITE | CFS_APPEND);
+  if(fd_write != -1) {
+    n = cfs_write(fd_write, s, sizeof(s));
+    cfs_close(fd_write);
+    printf("step 4: successfully appended data to cfs. wrote %i bytes  \n",n);
+  } else {
+    printf("ERROR: could not write to memory in step 4.\n");
+  }
+}*/
 
+/*void readFile(char* filename)
+{
+	fd_read = cfs_open(filename, CFS_READ);
+	if(fd_read!=-1) {
+		cfs_read(fd_read, , sizeof(message));
+		printf("step 3: %s\n", buf);
+		cfs_close(fd_read);
+	} else {
+		printf("ERROR: could not read from memory in step 3.\n");
+	}
+}*/
 
 
 
@@ -123,7 +151,7 @@ static double voltageSensor(){
   return saadcToDouble()*3.3/1024;
 }
 static double tempSensor(){
-  return saadc_get_value(1)*150/1024;
+  return saadc_get_value(1)*200/1024;
 }
 
 static double speedSensor(){
@@ -161,11 +189,23 @@ PROCESS_THREAD(er_example_server, ev, data)
     
     if (ev == PROCESS_EVENT_TIMER){
 	      //printf("CHAN %d : %f \n", chan, voltageSensor());
-            double a=5.6;
-    char s[10];
-    sprintf(s, "%d", a);
-    printf ("\nvaleur en trame: %s", s);
-        //dataCollection[i]=voltageSensor();
+        if(chan==0){
+          printf("CHAN %d : %f \n", chan, voltageSensor());
+          dataCollection[i]=voltageSensor();
+          writeToFile(voltageSensor(), "datas");
+        } 
+        else if(chan==1)
+        {
+          printf("CHAN %d : %f \n", chan, tempSensor());
+          dataCollection[i]=tempSensor();
+          writeToFile(tempSensor(), "datas");
+        }    
+        else if(chan==2)
+        {
+          printf("CHAN %d : %f \n", chan, speedSensor());
+          dataCollection[i]=speedSensor();
+          writeToFile(speedSensor(), "datas");
+        }
         i++;
 	      if (++chan >= NUM_CHAN) chan = 0;
   
