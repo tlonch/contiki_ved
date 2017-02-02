@@ -4,7 +4,7 @@
 #include "boards.h"
 #include "app_util_platform.h"
 #include "app_error.h"
-#include "/home/tim/Bureau/contiki/cpu/nrf52832/nrf-sdk/components/drivers_nrf/twi_master/nrf_drv_twi.h"
+#include "/home/dahmani/contiki_ved/cpu/nrf52832/nrf-sdk/components/drivers_nrf/twi_master/nrf_drv_twi.h"
 #include "nrf_delay.h"
 
 /* ID du master TWI */
