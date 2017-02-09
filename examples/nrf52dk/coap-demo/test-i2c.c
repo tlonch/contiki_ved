@@ -4,27 +4,41 @@
 #include "boards.h"
 #include "app_util_platform.h"
 #include "app_error.h"
-#include "/home/dahmani/contiki_ved/cpu/nrf52832/nrf-sdk/components/drivers_nrf/twi_master/nrf_drv_twi.h"
+#include "/home/dahmani/contikiBureau/cpu/nrf52832/nrf-sdk/components/drivers_nrf/twi_master/nrf_drv_twi.c"
+#include "/home/dahmani/contikiBureau/cpu/nrf52832/nrf-sdk/components/drivers_nrf/twi_master/nrf_drv_twi.h"
 #include "nrf_delay.h"
 
-/* ID du master TWI */
+
+#include "contiki.h"
+#include "contiki-net.h"
+#include "uip.h"
+#define DEBUG DEBUG_PRINT
+#include "net/ip/uip-debug.h" 
+
+
+	/* ID du master TWI */
 #define TWI_INSTANCE_ID     0
 
-/* Adresse des capteurs */
-//#define 
+	/* Adresse des capteurs */
+#define SHT7_ADDR 0x80
+#define SHT7_MEAS_TEMP 0xE3
 
-/* Indique si l'opération sur le TWI est terminée */
+	/* Indique si l'opération sur le TWI est terminée */
 static volatile bool transfer_done = false;
 
-/* On crée le master */
-static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
-
-/* valeure lue des sensor */
+	/* On crée le master */
+nrf_drv_twi_t m_twi = {
+    .p_reg    = (void *)0x40003000,       /**< Pointer to the instance register set. */
+    .irq       =   SPI0_TWI0_IRQn,         /**< Instance IRQ ID. */
+    .instance_id= 0
+};
+//static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
+	/* valeure lue des sensor */
 static uint8_t m_sample;
 
 void data_handler(uint8_t temp)
 {
-    PRINTF("%d", temp);
+    PRINTF("la température est de %d degrés", temp);
 }
 
 void twi_handler(nrf_drv_twi_evt_t const * p_event, void * p_context)
@@ -40,68 +54,59 @@ void twi_handler(nrf_drv_twi_evt_t const * p_event, void * p_context)
     }
 }
 
-/* Initialisation du TWI */
+	/* Initialisation du TWI */
 void twi_init (void)
 {
     ret_code_t err_code;
 	
     const nrf_drv_twi_config_t twi_config = {
-       .scl                = //SCL PIN,
-       .sda                = //SDA PIN,
+       .scl                = 27,
+       .sda                = 26,
        .frequency          = NRF_TWI_FREQ_100K,
        .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
-       .clear_bus_init     = false
     };
 	
     err_code = nrf_drv_twi_init(&m_twi, &twi_config, twi_handler, NULL);
-    APP_ERROR_CHECK(err_code);
+    //APP_ERROR_CHECK(err_code);
 	
-
-    nrf_drv_twi_enable(&m_twi);
+	    nrf_drv_twi_enable(&m_twi);
 }
-
-/* Lecture des données du sensor */
-static void read_sensor_data()
+	/* Lecture des données du sensor */
+static uint8_t read_sensor_data()
 {
     transfer_done = false;
-
-    ret_code_t err_code = nrf_drv_twi_rx(&m_twi, /*Adresse du capteur*/, &m_sample, sizeof(m_sample));
-    APP_ERROR_CHECK(err_code);
+ret_code_t err_code;
+    err_code = nrf_drv_twi_tx(&m_twi, SHT7_ADDR, SHT7_MEAS_TEMP, sizeof(SHT7_MEAS_TEMP), false);
+	//APP_ERROR_CHECK(err_code);
+   err_code = nrf_drv_twi_rx(&m_twi, SHT7_ADDR, &m_sample, sizeof(m_sample), false);
+//APP_ERROR_CHECK(err_code);
+ return m_sample;	
 
 }
 
-int main(void)
-{
-    twi_init();
-
-    while (true)
-    {
-        nrf_delay_ms(500);
-
-        do
-        {
-            __WFE();
-        }while (transfer_done == false);
-
-        read_sensor_data();
-    }
-}
-
-// PART 2
 
 
 
-PROCESS(er_example_i2c, "nRF52 DK I2C Sensor");
-AUTOSTART_PROCESSES(&er_example_i2c);
 
-PROCESS_THREAD(er_example_i2c, ev, data)
-{
-	twi_init();
+PROCESS(er_example_twi, "TWI example");
+
+AUTOSTART_PROCESSES(&er_example_twi);
+
+PROCESS_THREAD(er_example_twi, ev, data){
+        
+PRINTF("\n");
+	
 	PROCESS_BEGIN();
-	PROCESS_PAUSE();
-	while (1) {
-    		read_sensor_data();
-  	}
+		PROCESS_PAUSE();
+	PRINTF("Les nerfs ");
+	twi_init();
+		PRINTF("\n");
+	PRINTF("sont tendus");
+	PRINTF("\n");
 
-  	PROCESS_END();
+	while(1){
+		//PRINTF("la temperature est %u", read_sensor_data());
+		
+	}
+PROCESS_END();
 }
